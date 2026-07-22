@@ -1,9 +1,9 @@
 ---
-name: flight-scout
+name: trip-scout
 description: Plan trips end-to-end via Chrome browser automation and web research - flights on Google Flights, hotels on Google Hotels, and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or hotels, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
 ---
 
-# Flight Scout
+# Trip Scout
 
 Research a trip in the user's Chrome: flights on Google Flights, hotels on Google Hotels, and (opt-in) an activity + restaurant itinerary. Compare options, recommend, offer price tracking.
 

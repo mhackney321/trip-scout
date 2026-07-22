@@ -1,4 +1,4 @@
-# flight-scout — a Claude Code skill
+# trip-scout — a Claude Code skill
 
 Turns Claude Code + the Claude in Chrome extension into a trip-research assistant: it drives Google Flights and Google Hotels in your own browser, prices every reasonable option, recommends the best ones, can set price-tracking alerts, and — if you want — researches your destination and sketches a day-by-day itinerary.
 
