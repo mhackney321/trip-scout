@@ -31,10 +31,10 @@ It never books, holds, pays, or enters personal data. Research only.
 
 Copy this folder into your skills directory:
 
-- Personal (all your projects): `~/.claude/skills/flight-scout/`
-- Or per-project (shared with a repo's users): `<repo>/.claude/skills/flight-scout/`
+- Personal (all your projects): `~/.claude/skills/trip-scout/`
+- Or per-project (shared with a repo's users): `<repo>/.claude/skills/trip-scout/`
 
-New Claude Code sessions will pick it up automatically. Invoke it by typing `/flight-scout`, or just ask something like "find me flights from BOS to Lisbon in May."
+New Claude Code sessions will pick it up automatically. Invoke it by typing `/trip-scout`, or just ask something like "find me flights from BOS to Lisbon in May."
 
 ## Customize (optional)
 
