@@ -1,11 +1,13 @@
 ---
 name: flight-scout
-description: Research flight availability and pricing on Google Flights via Chrome browser automation. Use when the user asks to find, compare, or price flights between airports, evaluate alternate airports or split itineraries, or set up flight price tracking. Gathers origin/destination/dates/passengers (asks if missing), prices every option, recommends the best, and offers price-tracking alerts.
+description: Plan trips end-to-end via Chrome browser automation and web research - flights on Google Flights, hotels on Google Hotels, and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or hotels, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
 ---
 
 # Flight Scout
 
-Research flight pricing and availability in the user's Chrome via Google Flights, compare all reasonable options, recommend the best one, and offer price-tracking alerts.
+Research a trip in the user's Chrome: flights on Google Flights, hotels on Google Hotels, and (opt-in) an activity + restaurant itinerary. Compare options, recommend, offer price tracking.
+
+Run the phases in order, but only the ones the trip needs: flights-only requests stop after Phase 1; "plan my trip" runs all three. Each phase ends with a short report before the next begins.
 
 ## Personal defaults (optional — edit me)
 
@@ -15,16 +17,20 @@ If you (the skill's owner) want standing defaults, fill these in; Claude will us
 - Airports to always exclude:
 - Usual party (adults / children+ages / infants lap-or-seat):
 - Cabin preference:
+- Hotel taste (budget/night, stars, must-have amenities):
+- Interests & dietary notes for itineraries:
 
-## Step 0 — Prerequisites
+## Phase 0 — Prerequisites
 
-1. Invoke the `claude-in-chrome` skill first (required before any `mcp__claude-in-chrome__*` tool). This needs the Claude in Chrome extension installed, connected, and granted permission for google.com. If browser tools are unavailable or the user declines permissions, say so and offer a degraded fallback (WebSearch for typical fares) — do not fake results.
+1. Invoke the `claude-in-chrome` skill first (required before any `mcp__claude-in-chrome__*` tool). This needs the Claude in Chrome extension installed, connected, and granted permission for google.com. If browser tools are unavailable or the user declines permissions, say so and offer a degraded fallback (WebSearch for typical prices) — do not fake results.
 2. Load browser tools in ONE ToolSearch call: `tabs_context_mcp, navigate, computer, read_page, tabs_create_mcp, javascript_tool, browser_batch, get_page_text, find`.
 3. Get tab context; create a new tab unless the user says to reuse one.
 
-## Step 1 — Gather inputs (ask only for what's missing)
+## Phase 1 — Flights
 
-Required — take from the request or the Personal defaults above; ask via AskUserQuestion for anything still missing:
+### Inputs (ask only for what's missing)
+
+Required — take from the request or Personal defaults; ask via AskUserQuestion for anything still missing:
 - **Origin airport(s)**: primary + acceptable alternates + any excluded airports.
 - **Destination** (airport or city; if the city has multiple airports, ask or search the city code).
 - **Dates**: exact dates or candidate windows; if several windows, price each one.
@@ -34,9 +40,9 @@ Optional (use sensible defaults, don't interrogate): cabin = economy; round trip
 
 Do not guess airports from vague place names ("the city", "down south") — ask.
 
-## Step 2 — Search method (Google Flights)
+### Search method (Google Flights)
 
-Base URL: `https://www.google.com/travel/flights` (append `?gl=XX&hl=xx` matching the user's country/language only if results come back in the wrong locale; prices display in the currency Google chooses for the session — report whatever currency symbol appears, never assume USD).
+Base URL: `https://www.google.com/travel/flights` (append `?gl=XX&hl=xx` matching the user's country/language only if results come back in the wrong locale; report prices in whatever currency the page shows — never assume USD).
 
 **Fast path — natural-language q URL** (best for the FIRST search of each route):
 `.../travel/flights?q=nonstop%20flights%20from%20AAA%20to%20BBB%20on%20YYYY-MM-DD%20returning%20YYYY-MM-DD`
@@ -54,22 +60,64 @@ Also works with "one way ... on DATE". Parses origin/dest/dates/stops filter rel
 
 **Displayed prices are TOTALS for all passengers in the search**, taxes included, bag fees excluded. Say this in the report.
 
-## Step 3 — What to price
+### What to price
 
 1. Primary origin, each date window: nonstops first. If none exist, say so explicitly (that's a finding, not a failure) and show the best connecting options with layover airport + duration. Flag connections under ~50 minutes as risky — more so with children, strollers, or checked bags.
 2. Each allowed alternate origin: same treatment.
 3. Split / positioning itineraries (separate one-ways, overnight en route) — only when the user proposes one or asks for creative savings: price every leg on every feasible date; verify the budget carrier actually FLIES each route on each day (many ultra-low-cost routes are not daily — an empty result on one date does not mean the route doesn't exist); add realistic extras (positioning-city hotel, ground transport, one-way car logistics if outbound and return use different home airports); then compare honestly against the simple round trip. Warn: separately ticketed legs carry no missed-connection protection, and ULCC base fares exclude all bags and seat selection.
 
-## Step 4 — Report format
+### Flight report
 
 - Lead with the bottom line: cheapest workable option AND your recommendation — which may differ; weigh price against practicality (total travel time, departure-time sanity for the party, connection risk) and say why.
 - One table per origin/plan: date window | airline | schedule | duration | stops+layover | total price (with currency).
 - Rank the plans and state the price gap between winner and runners-up.
-- Caveats: fares move constantly, bag fees and basic-economy restrictions vary by airline, and quotes this far out will change.
+- Caveats: fares move constantly, bag fees and basic-economy restrictions vary by airline, and quotes far out will change.
 
-## Step 5 — Price tracking alerts
+## Phase 2 — Hotels (skip if the user already has lodging)
 
-Always offer at the end. If accepted:
+Ask once: "Do you need a place to stay, or is lodging handled?" If handled, skip to Phase 3.
+
+### Inputs
+
+Ask (one AskUserQuestion call, only for what's missing): nightly budget or total, star/quality level, area or landmark to stay near (if they know the destination), must-haves (multiSelect: pool, breakfast, kitchen, free cancellation, family rooms/cribs, parking, accessibility).
+
+### Search method (Google Hotels)
+
+- `https://www.google.com/travel/hotels` — enter destination, set the SAME dates and party as the chosen flight option (children's ages matter for room pricing).
+- Apply the user's filters via the UI (price slider, star rating, amenities). Sort or scan for best value.
+- Extract with the same innerText technique. Capture for each candidate: name, nightly + total price (with currency), rating and review count, area/landmark distance, cancellation policy if shown.
+- Cross-check the top 2–3 candidates with a quick WebSearch for red flags (resort fees, location issues, recent complaints). Google Hotels prices sometimes exclude local taxes/resort fees — check the "total" toggle if present and say what's included.
+- Shortlist 3–5 options across the price range, recommend one, and give the trip subtotal (flights + hotel) for the winning combination.
+- Offer price tracking where Google Hotels shows a track/alert option, same consent rules as flights.
+
+## Phase 3 — Activities & itinerary (opt-in)
+
+After flights/hotels are settled, ask exactly one simple question: "Want me to research things to do in <destination> and sketch a day-by-day itinerary?" If no, stop.
+
+### Quick interview
+
+If yes, ask in ONE AskUserQuestion call (multiSelect where noted):
+1. **Interests** (multiSelect): food & drink · beaches/outdoors · culture/museums/history · adventure/sports · nightlife · shopping · kid-friendly · relax/spa.
+2. **Restaurants**: splurge-worthy dining · solid local spots · quick & cheap · mix; plus note any cuisines or dietary restrictions in the option descriptions and let "Other" catch specifics.
+3. **Pace**: packed days · one anchor activity per day · mostly unstructured.
+
+### Research
+
+- Use WebSearch (and WebFetch for promising pages) — recent sources only; prefer local/official tourism pages, recent reviews, and current opening hours. Verify anything seasonal against the actual travel dates (closures, weather, festivals, hurricane/rainy season).
+- Match to the party: don't propose all-day hikes for a group with a lap infant; note stroller/accessibility issues; flag activities needing advance booking and typical prices.
+- Restaurants: 2 per day max in the plan (lunch/dinner), matched to stated prefs, near that day's activities; note reservation difficulty.
+
+### Itinerary output
+
+- Day-by-day for the actual trip dates, starting after the flight's real arrival time and ending before departure (Day 1 after a long flight = light; departure day = nothing that risks the flight).
+- Each day: morning / afternoon / evening, one line each, with neighborhood clustering so the day doesn't zigzag; estimated costs where known.
+- Mark which items need booking ahead, with links.
+- Keep it a suggestion, not a schedule — include a "swap ideas" list of 3–5 alternates.
+- End with a rough total trip cost: flights + hotel + estimated activities/food.
+
+## Price tracking alerts (flights, and hotels where offered)
+
+Always offer at the end of the relevant phase. If accepted:
 - Requires a signed-in Google account (check for the profile avatar top-right). If not signed in, tell the user to sign in themselves first — never handle their credentials.
 - On the exact search (route/dates/passengers set), toggle **"Track prices"** on the results page; alerts email the signed-in account. Confirm the toggle flipped via screenshot. Repeat per date window they want tracked.
 - This changes their Google account state — flip it only after an explicit yes.
@@ -80,4 +128,4 @@ Always offer at the end. If accepted:
 - All reported prices = total for the whole party, in the currency shown on the page; say so.
 - If the site blocks a JS read (e.g. "[BLOCKED: ...]"), fall back to UI interaction — don't retry the blocked call.
 - If pages stop responding or results won't load after 2–3 tries, stop and tell the user what happened rather than guessing.
-- Show progress as you go (one short line per leg searched); deliver the full comparison at the end.
+- Show progress as you go (one short line per leg/hotel/topic searched); deliver the full comparison at the end of each phase.
