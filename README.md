@@ -38,7 +38,25 @@ New Claude Code sessions will pick it up automatically. Invoke it by typing `/tr
 
 ## Customize (optional)
 
-Open `SKILL.md` and fill in the **Personal defaults** section (home airports, airports to avoid, your usual party, cabin preference) so Claude stops asking for them every time. Leave it blank to be prompted per search.
+Copy `defaults.example.md` to `defaults.local.md` and fill in your standing preferences (home airports, airports to avoid, usual party, cabin, lodging taste, interests). Claude reads it before asking questions. The file is gitignored, so your personal details never end up in a fork or pull request.
+
+## Example output
+
+A real run (family of 2 adults + 1 lap infant, Northeast US → Cancun, 7 nights):
+
+> **Bottom line:** JetBlue JFK round trip, 10:30 AM out / afternoon return, **$864 total** for the family — pairs with the Jan 6–13 resort window.
+>
+> | Origin plan | Best option | Total | Verdict |
+> |---|---|---|---|
+> | JFK nonstop | JetBlue 10:30 AM, 4h25m | $864 | ✅ winner |
+> | BDL (no nonstops exist) | United via IAD, 6h32m | $825 | +hotel risk, longer day |
+> | Split via Tampa (Avelo + Breeze) | 2 travel days | $938 + hotel night | loses on cost AND comfort |
+>
+> No nonstop BDL→CUN service exists in January — that's a finding, not a failure. The split itinerary loses because the budget carriers don't fly daily and separately ticketed legs carry no protection.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Notes
 

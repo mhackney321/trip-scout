@@ -20,16 +20,9 @@ Google Flights / Google Hotels are the fast, comparable STARTING POINT — not t
 
 On direct sites use the same techniques (fill the search form, extract from page text, screenshot to locate controls) and the same safety rules (no logins, no payments, no personal data). Report which source each price came from.
 
-## Personal defaults (optional — edit me)
+## Personal defaults (optional)
 
-If you (the skill's owner) want standing defaults, fill these in; Claude will use them instead of asking. Leave blank to be asked each time.
-
-- Home airport(s), in order of preference:
-- Airports to always exclude:
-- Usual party (adults / children+ages / infants lap-or-seat):
-- Cabin preference:
-- Hotel taste (budget/night, stars, must-have amenities):
-- Interests & dietary notes for itineraries:
+Before asking the user for inputs, check for a `defaults.local.md` file next to this SKILL.md and read it if present — it holds the owner's standing preferences (home airports, excluded airports, usual party, cabin, lodging taste, interests/dietary notes) and is gitignored so it never gets published. Use whatever it provides instead of asking; ask only for what's still missing. To set it up, copy `defaults.example.md` to `defaults.local.md` and fill it in.
 
 ## Phase 0 — Prerequisites
 
@@ -101,6 +94,24 @@ Ask (one AskUserQuestion call, only for what's missing): **lodging type** (multi
 - Search every type the user selected; "no preference" = hotels/resorts + vacation rentals side by side.
 - **Any specific property or platform the user names** (a resort, a chain, Vrbo, Booking.com, a boutique's own site) → search it directly, whether or not it appears on Google. Per the core principle, Google absence ≠ unavailable: property booking engines are the ground truth for availability, room categories, and restrictions.
 
+### Site playbooks (field-tested)
+
+**Google Hotels** (`google.com/travel/hotels`):
+- The q-URL works here too (`?q=resorts%20in%20Cancun`) and even auto-applies category filters from the query — but it defaults to ~tomorrow's dates, 1 night, 2 adults. ALWAYS set dates and party before reading any prices.
+- Date fields accept TYPED dates: click the field, select-all, type e.g. `Wed, Jan 6 2027` — jumps the calendar instantly, far faster than clicking through months. GOTCHA: after typing one date, calendar clicks can REPLACE check-in instead of setting checkout. Reliable sequence: click the check-in field → click its day → click the check-out field → click its day → verify BOTH dates show in the header → Done.
+- Adding a child defaults its age to 12 — always set the real age (the age dropdown scrolls; younger ages are above the fold). Ages change pricing.
+- Displayed prices are NIGHTLY. Get stay totals via the "What you'll pay" control or the property page before comparing.
+- Extraction anchor: search innerText for `N results`. Each card yields: name, nightly price, deal badges ("22% less than usual"), rating, review count, star class, amenities list.
+
+**Google Vacation Rentals**: it's the sibling tab next to Hotels — switching tabs PRESERVES dates and party. Cards yield name, nightly price, rating/reviews, sleeps/bedrooms/baths, sq ft, and useful tags like "Kid-friendly" and "Beach access".
+
+**Airbnb** (no login needed for search): build the URL directly —
+`https://www.airbnb.com/s/<City>--<Country>/homes?checkin=YYYY-MM-DD&checkout=YYYY-MM-DD&adults=N&children=N&infants=N`
+- Prices display as all-fees-included TOTALS for the stay ("Prices include all fees"), unlike Google's nightly figures — don't mix the two up when comparing.
+- A one-time modal ("Now you'll see one price...") may block the page — dismiss it ("Got it") before interacting.
+- innerText is NOISY: repeated "Prices include all fees" lines and duplicated accessibility text — dedupe when extracting. Cards yield: type ("Condo in Cancún"), title, rating + review count, bedrooms/beds/baths, strikethrough original vs. deal price, "for 7 nights", "Free cancellation", "Guest favorite" badge.
+- Filter chips (Crib, Pool, Kitchen, Free cancellation...) sit above results — use them for must-haves.
+
 ### Method (all sources)
 
 - Set the SAME dates and party as the chosen flight option (children's ages matter for room pricing).
@@ -125,7 +136,9 @@ If yes, ask in ONE AskUserQuestion call (multiSelect where noted):
 
 ### Research
 
-- Use WebSearch (and WebFetch for promising pages) — recent sources only; prefer local/official tourism pages, recent reviews, and current opening hours. Verify anything seasonal against the actual travel dates (closures, weather, festivals, hurricane/rainy season).
+- Use WebSearch (and WebFetch for promising pages) — recent sources only; prefer local/official tourism pages, recent reviews, and current opening hours. Verify anything seasonal against the actual travel dates (closures, weather, festivals, hurricane/rainy season, wildlife seasons — e.g. recommending a whale-shark tour outside its season is a classic failure).
+- Query patterns that work well (field-tested): `<destination> things to do with <party type>` · `<specific area> day trip <constraint>` (e.g. "with baby", "ferry", "wheelchair") · `family friendly restaurants <area> <current year> local food`. Search the party's actual constraints, not just the destination.
+- Keep the sources — the itinerary must cite them as markdown links so the user can verify details and book.
 - Match to the party: don't propose all-day hikes for a group with a lap infant; note stroller/accessibility issues; flag activities needing advance booking and typical prices.
 - Restaurants: 2 per day max in the plan (lunch/dinner), matched to stated prefs, near that day's activities; note reservation difficulty.
 
