@@ -1,13 +1,24 @@
 ---
 name: trip-scout
-description: Plan trips end-to-end via Chrome browser automation and web research - flights on Google Flights, lodging of any kind (hotels, resorts, all-inclusives, vacation rentals/Airbnb), and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or places to stay, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
+description: Plan trips end-to-end via Chrome browser automation and web research - flights (Google Flights first, airline sites direct when needed), lodging of any kind (hotels, resorts, all-inclusives, vacation rentals/Airbnb - via Google or the property's own site), and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or places to stay, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
 ---
 
 # Trip Scout
 
-Research a trip in the user's Chrome: flights on Google Flights, hotels on Google Hotels, and (opt-in) an activity + restaurant itinerary. Compare options, recommend, offer price tracking.
+Research a trip in the user's Chrome: flights, lodging of any kind, and (opt-in) an activity + restaurant itinerary. Compare options, recommend, offer price tracking.
 
 Run the phases in order, but only the ones the trip needs: flights-only requests stop after Phase 1; "plan my trip" runs all three. Each phase ends with a short report before the next begins.
+
+## Core principle — Google first, direct sites when needed
+
+Google Flights / Google Hotels are the fast, comparable STARTING POINT — not the boundary of the search. They are aggregators with coverage gaps: some airlines, resorts, and all Airbnb listings don't appear there. Absence from a Google surface is never proof something doesn't exist or isn't available. Go directly to an airline's, resort's, rental platform's, or hotel's own website (in the same Chrome session) whenever:
+
+- The user names a specific carrier, property, or platform that doesn't show in Google results.
+- A route/property is known or suspected to be served by companies missing from the aggregator.
+- Google shows no availability but the finding matters — confirm on the operator's own booking engine before reporting "unavailable".
+- You're about to recommend something — direct sites can have promos, member rates, bundle pricing, or restrictions (age limits, occupancy rules, fare rules) the aggregator hides.
+
+On direct sites use the same techniques (fill the search form, extract from page text, screenshot to locate controls) and the same safety rules (no logins, no payments, no personal data). Report which source each price came from.
 
 ## Personal defaults (optional — edit me)
 
@@ -40,9 +51,11 @@ Optional (use sensible defaults, don't interrogate): cabin = economy; round trip
 
 Do not guess airports from vague place names ("the city", "down south") — ask.
 
-### Search method (Google Flights)
+### Search method — Google Flights first, airlines direct when needed
 
 Base URL: `https://www.google.com/travel/flights` (append `?gl=XX&hl=xx` matching the user's country/language only if results come back in the wrong locale; report prices in whatever currency the page shows — never assume USD).
+
+Per the core principle: if a carrier the user cares about is missing from results, if a low-cost or regional airline is suspected to serve the route unlisted, or if Google shows nothing on a route that should exist — search the airline's own website directly (destination pages usually publish route maps and operating days). Also verify the fare on the airline's site before the user books, since direct prices and bundles can differ. Note per-airline gotchas honestly (e.g. some ULCCs sell bags/seats only at booking).
 
 **Fast path — natural-language q URL** (best for the FIRST search of each route):
 `.../travel/flights?q=nonstop%20flights%20from%20AAA%20to%20BBB%20on%20YYYY-MM-DD%20returning%20YYYY-MM-DD`
@@ -86,6 +99,7 @@ Ask (one AskUserQuestion call, only for what's missing): **lodging type** (multi
 - **Hotels, resorts, all-inclusives** → `https://www.google.com/travel/hotels`. Resorts are indexed here; use the amenity/class filters and the "All-inclusive" filter when relevant.
 - **Vacation rentals** → Google's "Vacation rentals" tab (sibling of the Hotels tab, or `https://www.google.com/travel/search?...` — click over from Hotels). This covers Vrbo/Booking-listed homes. NOTE: **Airbnb does not list on Google** — if the user wants Airbnb specifically, search `airbnb.com` directly in the browser: set destination, dates, guests (adults/children/infants), use the price-display toggle for totals, and extract listing name, type, total price, rating/review count, and location.
 - Search every type the user selected; "no preference" = hotels/resorts + vacation rentals side by side.
+- **Any specific property or platform the user names** (a resort, a chain, Vrbo, Booking.com, a boutique's own site) → search it directly, whether or not it appears on Google. Per the core principle, Google absence ≠ unavailable: property booking engines are the ground truth for availability, room categories, and restrictions.
 
 ### Method (all sources)
 
