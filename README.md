@@ -34,7 +34,39 @@ Copy this folder into your skills directory:
 - Personal (all your projects): `~/.claude/skills/trip-scout/`
 - Or per-project (shared with a repo's users): `<repo>/.claude/skills/trip-scout/`
 
-New Claude Code sessions will pick it up automatically. Invoke it by typing `/trip-scout`, or just ask something like "find me flights from BOS to Lisbon in May."
+New Claude Code sessions will pick it up automatically.
+
+## How to trigger it
+
+Two ways:
+
+**1. Explicitly** — type the slash command in any Claude Code session:
+
+```
+/trip-scout
+```
+
+Claude will ask for whatever it needs (origins, destination, dates, party) and take it from there. You can also pass the trip in the same breath:
+
+```
+/trip-scout BOS to Lisbon, May 12-19, 2 adults
+```
+
+**2. Naturally** — just describe what you want; the skill triggers on trip-shaped requests. Examples that work:
+
+| You say... | What runs |
+|---|---|
+| "Find me flights from BOS to Lisbon in May" | Flights phase |
+| "What's the cheapest week to fly ORD → Tokyo this fall?" | Flights across date windows |
+| "Compare flying out of Austin vs. Dallas to Denver, March 3–8" | Multi-airport comparison |
+| "Would it be cheaper to fly to Fort Lauderdale first and hop to the Bahamas?" | Split-itinerary analysis |
+| "Find us an all-inclusive resort in Punta Cana, first week of February, 2 adults + 2 kids (6 and 9)" | Lodging phase |
+| "Find an Airbnb in Lisbon near Alfama under $200/night" | Lodging via Airbnb direct |
+| "Plan our whole trip: flights from JFK, somewhere warm in January, hotel and things to do" | All three phases |
+| "What should we do for 5 days in Kyoto with a toddler?" | Itinerary phase |
+| "Set up price alerts on those dates" | Price tracking |
+
+Tips: give your party up front ("2 adults + 1 lap infant") for accurate totals, and name any airports you refuse to use — Claude treats exclusions as hard constraints. If you skip details, Claude asks instead of guessing.
 
 ## Customize (optional)
 
