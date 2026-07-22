@@ -10,8 +10,8 @@ Turns Claude Code + the Claude in Chrome extension into a trip-research assistan
 - Compares alternate airports and creative split itineraries honestly (including hotel nights, bag fees, and missed-connection risk).
 - Reports totals for your whole party in the currency Google shows, ranked, with a clear recommendation.
 
-**Hotels** (skipped if your lodging is handled)
-- Asks budget, area, and must-haves once, then shortlists 3–5 options on Google Hotels for your exact dates and party, cross-checked for resort fees and red flags.
+**Lodging** (skipped if yours is handled) — hotels, resorts, all-inclusives, and vacation rentals (Google Vacation Rentals / Vrbo listings, or Airbnb directly on request)
+- Asks lodging type, budget, area, and must-haves once, then shortlists 3–5 options for your exact dates and party — comparing true totals (taxes, resort fees, cleaning fees), cross-checking red flags, and checking resorts' own sites for direct-booking deals and room restrictions.
 
 **Itinerary** (opt-in)
 - One quick interview (interests, restaurant style, pace), then a day-by-day plan built around your real arrival/departure times, clustered by neighborhood, with booking-ahead flags and a rough total trip cost.

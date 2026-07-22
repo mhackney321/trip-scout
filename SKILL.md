@@ -1,6 +1,6 @@
 ---
 name: trip-scout
-description: Plan trips end-to-end via Chrome browser automation and web research - flights on Google Flights, hotels on Google Hotels, and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or hotels, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
+description: Plan trips end-to-end via Chrome browser automation and web research - flights on Google Flights, lodging of any kind (hotels, resorts, all-inclusives, vacation rentals/Airbnb), and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or places to stay, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
 ---
 
 # Trip Scout
@@ -73,22 +73,30 @@ Also works with "one way ... on DATE". Parses origin/dest/dates/stops filter rel
 - Rank the plans and state the price gap between winner and runners-up.
 - Caveats: fares move constantly, bag fees and basic-economy restrictions vary by airline, and quotes far out will change.
 
-## Phase 2 — Hotels (skip if the user already has lodging)
+## Phase 2 — Lodging (skip if the user already has it)
 
-Ask once: "Do you need a place to stay, or is lodging handled?" If handled, skip to Phase 3.
+"Lodging" means anywhere the user rests: hotels, resorts, all-inclusives, vacation rentals (Airbnb/Vrbo-style homes and condos), B&Bs, hostels. Ask once: "Do you need a place to stay, or is lodging handled?" If handled, skip to Phase 3.
 
 ### Inputs
 
-Ask (one AskUserQuestion call, only for what's missing): nightly budget or total, star/quality level, area or landmark to stay near (if they know the destination), must-haves (multiSelect: pool, breakfast, kitchen, free cancellation, family rooms/cribs, parking, accessibility).
+Ask (one AskUserQuestion call, only for what's missing): **lodging type** (multiSelect: hotel · resort/all-inclusive · vacation rental/Airbnb · no preference), nightly budget or total, star/quality level, area or landmark to stay near (if they know the destination), must-haves (multiSelect: pool, breakfast, kitchen, free cancellation, family rooms/cribs, parking, accessibility).
 
-### Search method (Google Hotels)
+### Where to search (by lodging type)
 
-- `https://www.google.com/travel/hotels` — enter destination, set the SAME dates and party as the chosen flight option (children's ages matter for room pricing).
+- **Hotels, resorts, all-inclusives** → `https://www.google.com/travel/hotels`. Resorts are indexed here; use the amenity/class filters and the "All-inclusive" filter when relevant.
+- **Vacation rentals** → Google's "Vacation rentals" tab (sibling of the Hotels tab, or `https://www.google.com/travel/search?...` — click over from Hotels). This covers Vrbo/Booking-listed homes. NOTE: **Airbnb does not list on Google** — if the user wants Airbnb specifically, search `airbnb.com` directly in the browser: set destination, dates, guests (adults/children/infants), use the price-display toggle for totals, and extract listing name, type, total price, rating/review count, and location.
+- Search every type the user selected; "no preference" = hotels/resorts + vacation rentals side by side.
+
+### Method (all sources)
+
+- Set the SAME dates and party as the chosen flight option (children's ages matter for room pricing).
 - Apply the user's filters via the UI (price slider, star rating, amenities). Sort or scan for best value.
-- Extract with the same innerText technique. Capture for each candidate: name, nightly + total price (with currency), rating and review count, area/landmark distance, cancellation policy if shown.
-- Cross-check the top 2–3 candidates with a quick WebSearch for red flags (resort fees, location issues, recent complaints). Google Hotels prices sometimes exclude local taxes/resort fees — check the "total" toggle if present and say what's included.
-- Shortlist 3–5 options across the price range, recommend one, and give the trip subtotal (flights + hotel) for the winning combination.
-- Offer price tracking where Google Hotels shows a track/alert option, same consent rules as flights.
+- Extract with the same innerText technique. Capture for each candidate: name, type, nightly + TOTAL price (with currency), rating and review count, area/landmark distance, cancellation policy if shown.
+- Compare totals, not nightly rates — rentals add cleaning/service fees, hotels add taxes/resort fees. Use each site's "total price" toggle where offered and say what's included.
+- Cross-check the top 2–3 candidates with a quick WebSearch for red flags (resort fees, location issues, recent complaints).
+- **Resorts**: also check the property's own booking site — direct promos, member rates, or suite-category perks often beat aggregator prices, and some room categories (e.g. adults-only sections, age restrictions) only show their rules there. Flag any occupancy/age restrictions against the user's party.
+- Shortlist 3–5 options across the price range and types, recommend one, and give the trip subtotal (flights + lodging) for the winning combination.
+- Offer price tracking where the site shows a track/alert option, same consent rules as flights.
 
 ## Phase 3 — Activities & itinerary (opt-in)
 
