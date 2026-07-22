@@ -1,6 +1,6 @@
 ---
 name: trip-scout
-description: Plan trips end-to-end via Chrome browser automation and web research - flights (Google Flights first, airline sites direct when needed), lodging of any kind (hotels, resorts, all-inclusives, vacation rentals/Airbnb - via Google or the property's own site), and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or places to stay, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party (asks if missing), prices every option, recommends the best, and offers price alerts and a day-by-day itinerary.
+description: Plan trips end-to-end via Chrome browser automation and web research - flights (Google Flights first, airline sites direct when needed), lodging of any kind (hotels, resorts, all-inclusives, vacation rentals/Airbnb - via Google or the property's own site), and optional activity/restaurant itineraries. Use when the user asks to find, compare, or price flights or places to stay, evaluate alternate airports or split itineraries, set up price tracking, or plan what to do at a destination. Gathers origin/destination/dates/party/budget/style (asks if missing), recommends destinations when the user is undecided, prices every option, tracks total budget across phases, recommends the best, and offers price alerts and a day-by-day itinerary.
 ---
 
 # Trip Scout
@@ -20,6 +20,19 @@ Google Flights / Google Hotels are the fast, comparable STARTING POINT — not t
 
 On direct sites use the same techniques (fill the search form, extract from page text, screenshot to locate controls) and the same safety rules (no logins, no payments, no personal data). Report which source each price came from.
 
+## Parse the request first
+
+Before any phase, extract these fields from the user's message (and `defaults.local.md`); ask via AskUserQuestion only for required fields still missing:
+
+- **Destination**: country/city/airport. If undecided ("somewhere warm", "not sure where"), don't stall — ask for their criteria (climate, vibe, flight-time tolerance, budget) in one question, recommend 2–3 candidate destinations with a sentence of reasoning each, let them pick, then proceed.
+- **Duration & dates**: how many days; departure/return dates or candidate windows. Flexible dates = price multiple windows.
+- **Party**: solo/couple/family/friends + headcount; children's ages; infants lap-or-seat.
+- **Budget** (optional): total trip budget or level (Budget/Standard/Luxury). Feeds every phase: flight-price ceiling, lodging tier, activity costs. If a total is given, track the running spend across phases and flag when a recommendation would blow it.
+- **Travel style** (optional): relaxation/adventure/cultural/culinary — steers lodging type and the itinerary without re-asking in Phase 3.
+- **Special requests** (optional): must-visit places, exclusions (airports, airlines, neighborhoods, activities), accessibility needs. Treat exclusions as hard constraints, never suggestions.
+
+Don't re-ask anything already extracted; later phases reuse these fields.
+
 ## Personal defaults (optional)
 
 Before asking the user for inputs, check for a `defaults.local.md` file next to this SKILL.md and read it if present — it holds the owner's standing preferences (home airports, excluded airports, usual party, cabin, lodging taste, interests/dietary notes) and is gitignored so it never gets published. Use whatever it provides instead of asking; ask only for what's still missing. To set it up, copy `defaults.example.md` to `defaults.local.md` and fill it in.
@@ -34,11 +47,9 @@ Before asking the user for inputs, check for a `defaults.local.md` file next to 
 
 ### Inputs (ask only for what's missing)
 
-Required — take from the request or Personal defaults; ask via AskUserQuestion for anything still missing:
+Destination, dates, and party come from "Parse the request first". Still needed here:
 - **Origin airport(s)**: primary + acceptable alternates + any excluded airports.
-- **Destination** (airport or city; if the city has multiple airports, ask or search the city code).
-- **Dates**: exact dates or candidate windows; if several windows, price each one.
-- **Passengers**: adults / children with ages / infants, and lap vs. seat for infants.
+- **Destination airport**: if the destination city has multiple airports, ask or search the city code.
 
 Optional (use sensible defaults, don't interrogate): cabin = economy; round trip unless told otherwise; nonstops preferred, but always show best connections when nonstops don't exist or the user asks.
 

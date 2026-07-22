@@ -66,7 +66,7 @@ Claude will ask for whatever it needs (origins, destination, dates, party) and t
 | "What should we do for 5 days in Kyoto with a toddler?" | Itinerary phase |
 | "Set up price alerts on those dates" | Price tracking |
 
-Tips: give your party up front ("2 adults + 1 lap infant") for accurate totals, and name any airports you refuse to use — Claude treats exclusions as hard constraints. If you skip details, Claude asks instead of guessing.
+Tips: give your party up front ("2 adults + 1 lap infant") for accurate totals, and name any airports you refuse to use — Claude treats exclusions as hard constraints. A budget ("keep it under $4k total", or just "budget/standard/luxury") gets tracked across flights, lodging, and activities. Undecided on where to go? Say so — "somewhere warm in January, short flight from NYC" gets you 2–3 recommended destinations to pick from before any searching starts. If you skip details, Claude asks instead of guessing.
 
 ## Customize (optional)
 
