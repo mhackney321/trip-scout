@@ -22,7 +22,7 @@ On direct sites use the same techniques (fill the search form, extract from page
 
 ## Parse the request first
 
-Before any phase, extract these fields from the user's message (and `defaults.local.md`); ask via AskUserQuestion only for required fields still missing:
+Before any phase, extract these fields from the user's message (and `defaults.local.md`); ask in one question only for required fields still missing:
 
 - **Destination**: country/city/airport. If undecided ("somewhere warm", "not sure where"), don't stall — ask for their criteria (climate, vibe, flight-time tolerance, budget) in one question, recommend 2–3 candidate destinations with a sentence of reasoning each, let them pick, then proceed.
 - **Duration & dates**: how many days; departure/return dates or candidate windows. Flexible dates = price multiple windows.
@@ -39,9 +39,11 @@ Before asking the user for inputs, check for a `defaults.local.md` file next to 
 
 ## Phase 0 — Prerequisites
 
-1. Invoke the `claude-in-chrome` skill first (required before any `mcp__claude-in-chrome__*` tool). This needs the Claude in Chrome extension installed, connected, and granted permission for google.com. If browser tools are unavailable or the user declines permissions, say so and offer a degraded fallback (WebSearch for typical prices) — do not fake results.
-2. Load browser tools in ONE ToolSearch call: `tabs_context_mcp, navigate, computer, read_page, tabs_create_mcp, javascript_tool, browser_batch, get_page_text, find`.
-3. Get tab context; create a new tab unless the user says to reuse one.
+This skill needs an assistant that can drive the user's Chrome browser (navigate, click, type, screenshot, run page JavaScript) and search the web. Set up whatever your environment requires before starting. In Claude Code specifically: invoke the `claude-in-chrome` skill first (required before any `mcp__claude-in-chrome__*` tool), which needs the Claude in Chrome extension installed, connected, and granted permission for google.com; load the browser tools in one ToolSearch call (`tabs_context_mcp, navigate, computer, read_page, tabs_create_mcp, javascript_tool, browser_batch, get_page_text, find`); get tab context and create a new tab unless the user says to reuse one. In other environments, use the equivalent browser-automation tooling.
+
+If browser automation is unavailable or the user declines permissions, say so and offer a degraded fallback (web search for typical prices) — do not fake results.
+
+Wherever this skill says "ask in one question", use your environment's structured-question tool if it has one (AskUserQuestion in Claude Code); otherwise just ask in chat.
 
 ## Phase 1 — Flights
 
@@ -96,7 +98,7 @@ Also works with "one way ... on DATE". Parses origin/dest/dates/stops filter rel
 
 ### Inputs
 
-Ask (one AskUserQuestion call, only for what's missing): **lodging type** (multiSelect: hotel · resort/all-inclusive · vacation rental/Airbnb · no preference), nightly budget or total, star/quality level, area or landmark to stay near (if they know the destination), must-haves (multiSelect: pool, breakfast, kitchen, free cancellation, family rooms/cribs, parking, accessibility).
+Ask (in one question, only for what's missing): **lodging type** (multiSelect: hotel · resort/all-inclusive · vacation rental/Airbnb · no preference), nightly budget or total, star/quality level, area or landmark to stay near (if they know the destination), must-haves (multiSelect: pool, breakfast, kitchen, free cancellation, family rooms/cribs, parking, accessibility).
 
 ### Where to search (by lodging type)
 
@@ -140,7 +142,7 @@ After flights/hotels are settled, ask exactly one simple question: "Want me to r
 
 ### Quick interview
 
-If yes, ask in ONE AskUserQuestion call (multiSelect where noted):
+If yes, ask in one question (multi-select where noted):
 1. **Interests** (multiSelect): food & drink · beaches/outdoors · culture/museums/history · adventure/sports · nightlife · shopping · kid-friendly · relax/spa.
 2. **Restaurants**: splurge-worthy dining · solid local spots · quick & cheap · mix; plus note any cuisines or dietary restrictions in the option descriptions and let "Other" catch specifics.
 3. **Pace**: packed days · one anchor activity per day · mostly unstructured.

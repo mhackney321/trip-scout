@@ -1,7 +1,7 @@
 # trip-scout personal defaults
 
 Copy this file to `defaults.local.md` (gitignored) and fill in what you want.
-Claude reads it before asking questions; anything blank still gets asked.
+Your assistant reads it before asking questions; anything blank still gets asked.
 
 - Home airport(s), in order of preference:
 - Airports to always exclude:

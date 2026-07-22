@@ -1,20 +1,22 @@
-# trip-scout — a Claude Code skill
+# trip-scout — an AI trip-planning skill
 
-Turns Claude Code + the Claude in Chrome extension into a trip-research assistant: it researches in your own browser — starting with Google Flights and Google Hotels for fast comparison, then going directly to airline, resort, hotel, and rental sites (Airbnb, Vrbo, property booking engines) whenever the aggregators don't cover something — prices every reasonable option, recommends the best ones, can set price-tracking alerts, and — if you want — researches your destination and sketches a day-by-day itinerary.
+A skill (portable instruction set) that turns an AI assistant with browser automation into a trip-research assistant: it researches in your own Chrome browser — starting with Google Flights and Google Hotels for fast comparison, then going directly to airline, resort, hotel, and rental sites (Airbnb, Vrbo, property booking engines) whenever the aggregators don't cover something — prices every reasonable option, recommends the best ones, can set price-tracking alerts, and — if you want — researches your destination and sketches a day-by-day itinerary.
+
+Written and field-tested with [Claude Code](https://claude.com/claude-code), but the playbook is assistant-agnostic: any AI assistant that can drive a Chrome browser (navigate, click, type, read pages) and search the web can follow it.
 
 ## What it does
 
 **Flights**
-- Asks for origin(s), destination, dates, and passenger mix — or uses defaults you hard-code.
+- Asks for origin(s), destination, dates, and passenger mix — or uses defaults you hard-code. Undecided on a destination? It recommends 2–3 based on your criteria first.
 - Checks nonstops first; falls back to connections with layover details when nonstops don't exist.
 - Compares alternate airports and creative split itineraries honestly (including hotel nights, bag fees, and missed-connection risk).
-- Reports totals for your whole party in the currency Google shows, ranked, with a clear recommendation.
+- Reports totals for your whole party in the currency shown, ranked, with a clear recommendation.
 
 **Lodging** (skipped if yours is handled) — hotels, resorts, all-inclusives, and vacation rentals (Google Vacation Rentals / Vrbo listings, or Airbnb directly on request)
 - Asks lodging type, budget, area, and must-haves once, then shortlists 3–5 options for your exact dates and party — comparing true totals (taxes, resort fees, cleaning fees), cross-checking red flags, and checking resorts' own sites for direct-booking deals and room restrictions.
 
 **Itinerary** (opt-in)
-- One quick interview (interests, restaurant style, pace), then a day-by-day plan built around your real arrival/departure times, clustered by neighborhood, with booking-ahead flags and a rough total trip cost.
+- One quick interview (interests, restaurant style, pace), then a day-by-day plan built around your real arrival/departure times, clustered by neighborhood, with booking-ahead flags, cited sources, and a rough total trip cost.
 
 **Price tracking**
 - Offers to toggle Google "Track prices" alerts on flights (and hotels where available) — requires you to be signed in to Google.
@@ -23,36 +25,36 @@ It never books, holds, pays, or enters personal data. Research only.
 
 ## Requirements
 
-- [Claude Code](https://claude.com/claude-code) (CLI or desktop app)
-- Google Chrome with the **Claude in Chrome** extension installed and connected
-- Extension permission granted for google.com
+- An AI assistant that can automate your Chrome browser and search the web. Tested with:
+  - **Claude Code** (CLI or desktop app) + the **Claude in Chrome** extension, connected, with permission granted for google.com
+- Other assistants: any environment with equivalent browser-automation tools can use this skill — see Install below.
 
 ## Install
 
-Copy this folder into your skills directory:
+**Claude Code**: copy this folder into your skills directory —
 
 - Personal (all your projects): `~/.claude/skills/trip-scout/`
 - Or per-project (shared with a repo's users): `<repo>/.claude/skills/trip-scout/`
 
-New Claude Code sessions will pick it up automatically.
+New sessions pick it up automatically.
+
+**Other AI assistants**: give your assistant the contents of `SKILL.md` however it accepts standing instructions — a custom instruction file, system prompt, agent definition, or pasted at the start of a session. The file is self-contained; environment-specific tool names are called out so your assistant can substitute its own equivalents.
 
 ## How to trigger it
 
-Two ways:
-
-**1. Explicitly** — type the slash command in any Claude Code session:
+**Explicitly** (Claude Code) — type the slash command in any session:
 
 ```
 /trip-scout
 ```
 
-Claude will ask for whatever it needs (origins, destination, dates, party) and take it from there. You can also pass the trip in the same breath:
+The assistant will ask for whatever it needs (origins, destination, dates, party) and take it from there. You can also pass the trip in the same breath:
 
 ```
 /trip-scout BOS to Lisbon, May 12-19, 2 adults
 ```
 
-**2. Naturally** — just describe what you want; the skill triggers on trip-shaped requests. Examples that work:
+**Naturally** (any assistant) — just describe what you want; trip-shaped requests trigger the skill. Examples that work:
 
 | You say... | What runs |
 |---|---|
@@ -66,11 +68,11 @@ Claude will ask for whatever it needs (origins, destination, dates, party) and t
 | "What should we do for 5 days in Kyoto with a toddler?" | Itinerary phase |
 | "Set up price alerts on those dates" | Price tracking |
 
-Tips: give your party up front ("2 adults + 1 lap infant") for accurate totals, and name any airports you refuse to use — Claude treats exclusions as hard constraints. A budget ("keep it under $4k total", or just "budget/standard/luxury") gets tracked across flights, lodging, and activities. Undecided on where to go? Say so — "somewhere warm in January, short flight from NYC" gets you 2–3 recommended destinations to pick from before any searching starts. If you skip details, Claude asks instead of guessing.
+Tips: give your party up front ("2 adults + 1 lap infant") for accurate totals, and name any airports you refuse to use — exclusions are treated as hard constraints. A budget ("keep it under $4k total", or just "budget/standard/luxury") gets tracked across flights, lodging, and activities. Undecided on where to go? Say so — "somewhere warm in January, short flight from NYC" gets you 2–3 recommended destinations to pick from before any searching starts. If you skip details, the assistant asks instead of guessing.
 
 ## Customize (optional)
 
-Copy `defaults.example.md` to `defaults.local.md` and fill in your standing preferences (home airports, airports to avoid, usual party, cabin, lodging taste, interests). Claude reads it before asking questions. The file is gitignored, so your personal details never end up in a fork or pull request.
+Copy `defaults.example.md` to `defaults.local.md` and fill in your standing preferences (home airports, airports to avoid, usual party, cabin, lodging taste, interests). Your assistant reads it before asking questions. The file is gitignored, so your personal details never end up in a fork or pull request.
 
 ## Example output
 
@@ -86,12 +88,12 @@ A real run (family of 2 adults + 1 lap infant, Northeast US → Cancun, 7 nights
 >
 > No nonstop BDL→CUN service exists in January — that's a finding, not a failure. The split itinerary loses because the budget carriers don't fly daily and separately ticketed legs carry no protection.
 
+## Notes
+
+- Prices shown are the booking sites' totals for all passengers; what's included (taxes, fees) is reported per source.
+- Price-tracking alerts email the Google account signed in to Chrome; the assistant will ask before flipping the toggle and will never sign in for you.
+- Google and Airbnb change their UIs occasionally; the skill says to screenshot-and-adapt rather than rely on fixed layouts, but if a step breaks, re-run or file an issue where you got the skill.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
-## Notes
-
-- Prices shown are Google Flights totals for all passengers, taxes included, bag fees excluded.
-- Price-tracking alerts email the Google account signed in to Chrome; Claude will ask before flipping the toggle and will never sign in for you.
-- Google changes its UI occasionally; the skill instructs Claude to screenshot-and-adapt rather than rely on fixed layouts, but if a step breaks, re-run or file an issue where you got the skill.
